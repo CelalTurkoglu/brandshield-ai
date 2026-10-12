@@ -1,0 +1,3 @@
+# Next.js bu MVP’de yerleşik görsel optimizasyonu kullanmıyor; sharp derlemesi bilinçli olarak devre dışı.
+ignoredBuiltDependencies:
+  - sharp

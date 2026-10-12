@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+.pnpm-store/
+.state/
+.work/
+.manus/
+*.tsbuildinfo
+manus-webdev*.json
+pnpm-debug.log*
+.DS_Store
