@@ -64,9 +64,13 @@ async function resolveSourceUrl(input: string) {
   return current;
 }
 
+export const DEFAULT_APIFY_REVIEW_ACTOR_ID = "compass/google-maps-reviews-scraper";
+export function apifyActorId() {
+  return process.env.APIFY_REVIEW_ACTOR_ID || DEFAULT_APIFY_REVIEW_ACTOR_ID;
+}
 export async function scrapeWithApify(url: string): Promise<{ reviews: Review[]; sourceName: string; resolvedUrl: string } | null> {
   const token = process.env.APIFY_API_TOKEN;
-  const actorId = process.env.APIFY_REVIEW_ACTOR_ID;
+  const actorId = apifyActorId();
   if (!token || !actorId || !url) return null;
 
   try {

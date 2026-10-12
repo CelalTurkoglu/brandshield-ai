@@ -13,8 +13,13 @@ export interface AuthUser {
 
 const scrypt = promisify(crypto.scrypt);
 
+// BrandShield signs its own email/password sessions. A dedicated BRANDSHIELD_JWT_SECRET wins;
+// otherwise the hosting platform's private runtime signing secret is used as the HMAC key.
+function sessionSigningSecret() {
+  return process.env.BRANDSHIELD_JWT_SECRET || process.env.MANUS_JWT_SECRET || "";
+}
 function getSecret() {
-  const secret = process.env.BRANDSHIELD_JWT_SECRET;
+  const secret = sessionSigningSecret();
   return secret ? new TextEncoder().encode(secret) : null;
 }
 
@@ -69,7 +74,7 @@ export async function readSession(token?: string): Promise<AuthUser | null> {
 }
 
 export function authEnvironmentReady() {
-  return Boolean(process.env.BRANDSHIELD_JWT_SECRET && process.env.DATABASE_URL);
+  return Boolean(sessionSigningSecret() && process.env.DATABASE_URL);
 }
 
 export function sessionCookieOptions(request: Request) {

@@ -31,7 +31,7 @@ Yalnızca sunucu ortamında ayarlayın:
 | `FAL_KEY` | fal.ai yaratıcı üretim anahtarı |
 | `FAL_MODEL` | Opsiyonel fal.ai model kimliği |
 
-Local auth için `BRANDSHIELD_JWT_SECRET` gerekir. `DATABASE_URL` managed database runtime’ından gelir; bu iki değişken yayın ortamında birlikte tanımlı olmalıdır.
+Local auth oturumları `BRANDSHIELD_JWT_SECRET` ile imzalanır; bu değişken yoksa yayın platformunun sağladığı özel `MANUS_JWT_SECRET` imzalama anahtarı olarak kullanılır (Manus ile giriş yapılmaz, yalnızca HMAC anahtarıdır). `DATABASE_URL` managed database runtime’ından gelir. `APIFY_REVIEW_ACTOR_ID` boşsa varsayılan `compass/google-maps-reviews-scraper` kullanılır.
 
 Bir anahtar eksik veya sağlayıcı yanıt vermiyorsa uygulama aynı UX sözleşmesiyle demo fallback’ine döner.
 
@@ -60,12 +60,10 @@ The public acquisition page is available at `/`; the operational workspace is at
 
 ## Yayınlama
 
-Bu proje Manus Webdev managed web projesi olarak başlatıldı. İlk yayın için önerilen yer Manus Webdev’in kendi **Publish/Deploy** akışıdır; mevcut managed MySQL, runtime env ve preview/public domain aynı proje üzerinden taşınır. Yayın sırasında `APIFY_API_TOKEN`, `APIFY_REVIEW_ACTOR_ID`, `FAL_KEY`, `FAL_MODEL`, `BRANDSHIELD_JWT_SECRET` ve managed `DATABASE_URL` değerlerini production runtime’a bağlayın. Ayrı bir domain istendiğinde yayın sonrası custom domain’i bu public deployment’a bağlayın.
+Canlı adres: https://brandshield-gkiv9g4y.manus.space — Manus Webdev managed hosting (Docker container, health path `/api/status`, managed MySQL).
 
-Alternatif olarak Vercel üzerinde de çalışır: repository’yi bağlayın, build komutu `pnpm build`, output ayarı Next.js default, Node runtime server routes için aktif olmalı ve aynı env değişkenlerini ekleyin. Managed MySQL bağlantısını Vercel production’dan erişilebilir tutun; local `.env` secret’larını GitHub’a göndermeyin.
+Production’da yalnızca iki secret gerekir: `APIFY_API_TOKEN` ve `FAL_KEY`. Bunlar Manus projesinin secret kartından **Production** ortamına girilir; `.env` dosyası repoya ve image’a girmez. `FAL_MODEL`, `APIFY_REVIEW_ACTOR_ID` ve `BRANDSHIELD_JWT_SECRET` isteğe bağlıdır.
 
-The review period control recalculates the radar, counts and feed from parsed review dates for 7, 30 or 90 days. Apify imports request and sort the latest 100 reviews. Maps short links are resolved before scraping and the source name is taken from the resolved place URL or Actor metadata.
+Dockerfile çalışma dizini bilinçli olarak `/srv/brandshield`’dır: proje `app/app/page.tsx` (`/app` rotası) içerdiği için `WORKDIR /app` kullanıldığında iç içe `/app/app/app` yolları oluşur ve kök sayfa yanlış modülle derlenebilir.
 
-Negative reviews can be handled one at a time or through the bulk reply panel. Each draft is generated in Turkish or English based on the review language. “Approve & queue all” prepares the batch for the connected review channel; real Google Business Profile publishing still requires a separate Business Profile OAuth connection and is not falsely simulated.
-
-The additive schema lives in `db/schema.sql`; run `pnpm db:migrate` after database enablement or when applying a new additive schema revision. Development and published runtime share the managed database, so destructive test migrations are not used.
+**Türkiye erişim notu:** Bazı Türk internet sağlayıcıları `*.manus.space` alan adını TLS/SNI seviyesinde filtreleyebiliyor (alan adı daha önce USOM kararıyla engellenmişti). Site başka ağlardan açılsa bile bu ağlarda zaman aşımı görülür. Kalıcı çözüm, deployment’a kendi alan adınızı (ör. `app.brandshield.com.tr`) Manus Custom Domains ile bağlamaktır.
