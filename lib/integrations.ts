@@ -1,4 +1,5 @@
 import { classifyReview } from "./intelligence";
+import { readIntegrationSecret } from "./runtime-secrets";
 import { sortReviewsLatest } from "./reviews";
 import type { BrandCase, CreativeConcept, Review } from "./types";
 
@@ -69,7 +70,7 @@ export function apifyActorId() {
   return process.env.APIFY_REVIEW_ACTOR_ID || DEFAULT_APIFY_REVIEW_ACTOR_ID;
 }
 export async function scrapeWithApify(url: string): Promise<{ reviews: Review[]; sourceName: string; resolvedUrl: string } | null> {
-  const token = process.env.APIFY_API_TOKEN;
+  const token = await readIntegrationSecret("APIFY_API_TOKEN");
   const actorId = apifyActorId();
   if (!token || !actorId || !url) return null;
 
@@ -170,8 +171,8 @@ async function pollFal(statusUrl: string, responseUrl: string, key: string): Pro
 }
 
 export async function generateWithFal(concept: CreativeConcept): Promise<string | null> {
-  const key = process.env.FAL_KEY;
-  const model = process.env.FAL_MODEL ?? "fal-ai/flux/schnell";
+  const key = await readIntegrationSecret("FAL_KEY");
+  const model = (await readIntegrationSecret("FAL_MODEL")) || "fal-ai/flux/schnell";
   if (!key) return null;
 
   try {

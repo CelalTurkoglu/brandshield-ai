@@ -48,3 +48,10 @@ CREATE TABLE IF NOT EXISTS brandshield_reviews (
   KEY idx_brandshield_review_business_date (business_id, imported_at),
   CONSTRAINT fk_brandshield_review_business FOREIGN KEY (business_id) REFERENCES brandshield_businesses(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS brandshield_settings (
+  setting_name VARCHAR(64) NOT NULL,
+  setting_value TEXT NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (setting_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

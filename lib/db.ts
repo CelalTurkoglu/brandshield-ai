@@ -5,14 +5,30 @@ import type { Business, Review } from "./types";
 
 let pool: Pool | null = null;
 
+export function getDatabaseUrl() {
+  return process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.MYSQL_PRIVATE_URL || "";
+}
+
 function getPool() {
-  if (!process.env.DATABASE_URL) return null;
-  if (!pool) pool = mysql.createPool({ uri: process.env.DATABASE_URL, waitForConnections: true, connectionLimit: 5, maxIdle: 5, idleTimeout: 60000 });
+  const url = getDatabaseUrl();
+  if (!url) return null;
+  if (!pool) pool = mysql.createPool({ uri: url, waitForConnections: true, connectionLimit: 5, maxIdle: 5, idleTimeout: 60000 });
   return pool;
 }
 
+export async function getIntegrationSetting(name: string): Promise<string | null> {
+  const db = getPool();
+  if (!db) return null;
+  try {
+    const [rows] = await db.execute<RowDataPacket[]>(`SELECT setting_value FROM brandshield_settings WHERE setting_name = ? LIMIT 1`, [name]);
+    return rows[0]?.setting_value ? String(rows[0].setting_value) : null;
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "ER_NO_SUCH_TABLE") return null;
+    throw error;
+  }
+}
 export function databaseConfigured() {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(getDatabaseUrl());
 }
 
 export type StoredAuthUser = AuthUser & { passwordHash: string };

@@ -8,5 +8,5 @@ export async function GET() {
   if (!available) return Response.json({ authenticated: false, available: false });
   const cookieStore = await cookies();
   const user = await readSession(cookieStore.get(sessionCookieName)?.value);
-  return user ? Response.json({ authenticated: true, available: true, user }) : Response.json({ authenticated: false, available: true }, { status: 401 });
+  return user ? Response.json({ authenticated: true, available: true, user }) : Response.json({ authenticated: false, available: true });
 }

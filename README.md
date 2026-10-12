@@ -62,7 +62,12 @@ The public acquisition page is available at `/`; the operational workspace is at
 
 Canlı adres: https://brandshield-gkiv9g4y.manus.space — Manus Webdev managed hosting (Docker container, health path `/api/status`, managed MySQL).
 
-Production’da yalnızca iki secret gerekir: `APIFY_API_TOKEN` ve `FAL_KEY`. Bunlar Manus projesinin secret kartından **Production** ortamına girilir; `.env` dosyası repoya ve image’a girmez. `FAL_MODEL`, `APIFY_REVIEW_ACTOR_ID` ve `BRANDSHIELD_JWT_SECRET` isteğe bağlıdır.
+Production’da Apify ve fal.ai anahtarları iki yoldan okunur (sırasıyla):
+
+1. **Ortam değişkeni** — Manus projesinin Secrets ekranındaki `APIFY_API_TOKEN`, `FAL_KEY`, `FAL_MODEL`.
+2. **Sunucu tarafı ayar tablosu** — managed veritabanındaki `brandshield_settings`. Yerel `.env` değerlerini buraya aktarmak için `pnpm db:migrate && pnpm integrations:sync` çalıştırın; betik değerleri yazdırmaz, yalnızca uzunluklarını gösterir.
+
+Anahtarlar hiçbir zaman Git’e, Docker imajına veya tarayıcıya gitmez; `/api/status` yalnızca `true/false` döndürür. Anahtar değiştiğinde `pnpm integrations:sync` komutunu yeniden çalıştırmanız yeterli; sunucu yeni değeri en geç 60 saniye içinde okur, yeniden yayın gerekmez.
 
 Dockerfile çalışma dizini bilinçli olarak `/srv/brandshield`’dır: proje `app/app/page.tsx` (`/app` rotası) içerdiği için `WORKDIR /app` kullanıldığında iç içe `/app/app/app` yolları oluşur ve kök sayfa yanlış modülle derlenebilir.
 

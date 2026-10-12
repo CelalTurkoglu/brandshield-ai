@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "integrations:sync": "node scripts/sync-integration-keys.mjs"
   },
   "dependencies": {
     "jose": "6.1.0",
